@@ -15,7 +15,8 @@ namespace CSS490_chat
     public partial class Form1 : Form
     {
         Socket sckCommunication;
-        EndPoint epLocal, epRemote;
+        EndPoint epLocal;
+        EndPoint epRemote;
         byte[] buffer;
 
         public Form1()
@@ -26,6 +27,7 @@ namespace CSS490_chat
                     SocketType.Dgram, ProtocolType.Udp);
             sckCommunication.SetSocketOption(SocketOptionLevel.Socket,
                                 SocketOptionName.ReuseAddress, true);
+            sendButton.Enabled = false;
         }
 
         private void startButton_Click(object sender, EventArgs e)
@@ -50,22 +52,19 @@ namespace CSS490_chat
 
         }
 
-        private void GetLocalIP()
-        {
+        private void GetLocalIP() {           
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            List<System.Net.IPAddress> blah = new List<System.Net.IPAddress>();
+            blah = (from ip in host.AddressList where !IPAddress.IsLoopback(ip) select ip).ToList();
+            StringBuilder sigh = new StringBuilder();
+            sigh.Append("Select your network assigned IP address from the list below " +
+                "and enter it into the my IP box. " + Environment.NewLine + Environment.NewLine);
+            for (int i = 0; i < blah.Count; i++)
             {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                List<System.Net.IPAddress> blah = new List<System.Net.IPAddress>();
-                blah = (from ip in host.AddressList where !IPAddress.IsLoopback(ip) select ip).ToList();
-                StringBuilder sigh = new StringBuilder();
-                sigh.Append("Select your network assigned IP address from the list below " +
-                    "and enter it into the my IP box. " + Environment.NewLine + Environment.NewLine);
-                for (int i = 0; i < blah.Count; i++)
-                {
-                    sigh.Append(blah[i]);
-                    sigh.Append(Environment.NewLine);
-                }
-                ipBox.Text = sigh.ToString();
+                sigh.Append(blah[i]);
+                sigh.Append(Environment.NewLine);
             }
+            ipBox.Text = sigh.ToString();
         }
 
         private void sendButton_Click(object sender, EventArgs e)
@@ -84,6 +83,11 @@ namespace CSS490_chat
 
             // clear txtMessage
             outBox.Clear();
+
+            if(outBox.Text.StartsWith("!!"))
+            {
+                //stuff.
+            }
 
         }
 
