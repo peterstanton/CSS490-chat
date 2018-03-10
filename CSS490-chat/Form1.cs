@@ -102,6 +102,7 @@ namespace CSS490_chat
         private void uploadLog()
         {       
             SaveFileDialog f = new SaveFileDialog();
+            f.Filter = "Text (*.txt)|*.txt";
 
             CloudStorageAccount hiAccount = CloudStorageAccount.Parse(
 CloudConfigurationManager.GetSetting("StorageConnectionString"));
