@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net.Sockets;
 using System.Net;
+using Microsoft.Azure;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace CSS490_chat
 {
@@ -88,9 +91,22 @@ namespace CSS490_chat
             {
                 if(outBox.Text == "!!log")
                 {
-                    //write to file and upload to Azure blob.
+                    uploadLog();
                 }
             }
+
+        }
+
+        private void uploadLog()
+        {
+            CloudStorageAccount hiAccount = CloudStorageAccount.Parse(
+    CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            CloudBlobClient blobClient = hiAccount.CreateCloudBlobClient();
+            CloudBlobContainer myCont = blobClient.GetContainerReference("css490chatlog");
+            CloudBlockBlob myBlob = myCont.GetBlockBlobReference("backup.txt");
+            BlobContainerPermissions perm = myCont.GetPermissions();
+            perm.PublicAccess = BlobContainerPublicAccessType.Blob;
+            myCont.SetPermissions(perm);
 
         }
 
