@@ -12,6 +12,7 @@ using System.Net;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Blob;
+using System.IO;
 
 namespace CSS490_chat
 {
@@ -31,6 +32,7 @@ namespace CSS490_chat
             sckCommunication.SetSocketOption(SocketOptionLevel.Socket,
                                 SocketOptionName.ReuseAddress, true);
             sendButton.Enabled = false;
+
         }
 
         private void startButton_Click(object sender, EventArgs e)
@@ -83,24 +85,26 @@ namespace CSS490_chat
 
             // add to listbox
             bigTextBox.Items.Add("You: " + outBox.Text);
-
-            // clear txtMessage
-            outBox.Clear();
-
-            if(outBox.Text.StartsWith("!!"))
+            if (outBox.Text.StartsWith("!!"))
             {
-                if(outBox.Text == "!!log")
+                if (outBox.Text == "!!log")
                 {
                     uploadLog();
                 }
             }
 
+
+            // clear txtMessage
+            outBox.Clear();
+
         }
 
         private void uploadLog()
-        {
+        {       
+            SaveFileDialog f = new SaveFileDialog();
+
             CloudStorageAccount hiAccount = CloudStorageAccount.Parse(
-    CloudConfigurationManager.GetSetting("StorageConnectionString"));
+CloudConfigurationManager.GetSetting("StorageConnectionString"));
             CloudBlobClient blobClient = hiAccount.CreateCloudBlobClient();
             CloudBlobContainer myCont = blobClient.GetContainerReference("css490chatlog");
             CloudBlockBlob myBlob = myCont.GetBlockBlobReference("backup.txt");
@@ -108,6 +112,24 @@ namespace CSS490_chat
             perm.PublicAccess = BlobContainerPublicAccessType.Blob;
             myCont.SetPermissions(perm);
 
+            if (f.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                string output = String.Empty;
+                foreach (String li in bigTextBox.Items)
+                {
+                    output = output + li + Environment.NewLine;
+                }
+                File.WriteAllText(f.FileName, output);
+            }
+            else
+            {
+                return;
+            }
+
+            using (WebClient thisClient = null)
+            {
+                myBlob.UploadFromFile(f.FileName);
+            }
         }
 
         private void OperatorCallBack(IAsyncResult ar)
