@@ -86,7 +86,10 @@ namespace CSS490_chat
 
             if(outBox.Text.StartsWith("!!"))
             {
-                //stuff.
+                if(outBox.Text == "!!log")
+                {
+                    //write to file and upload to Azure blob.
+                }
             }
 
         }
